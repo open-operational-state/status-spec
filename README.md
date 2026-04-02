@@ -4,7 +4,7 @@ The technical specification for [Open Operational State](https://github.com/open
 
 ## Overview
 
-This repository defines how web services communicate their operational condition — health, readiness, liveness, status — in a machine-readable, interoperable way. The standard is built around a six-layer extensible architecture.
+This repository defines how web services communicate their operational condition — health, readiness, liveness, status — in a machine-readable, interoperable way. It provides a unifying semantic model for health check endpoints, readiness and liveness probes, and service status APIs. The standard is built around a six-layer extensible architecture.
 
 ## Reading Guide
 
@@ -38,6 +38,15 @@ Then explore the specification documents:
 | [terminology/](terminology/) | Applied spec-level usage and context (authoritative glossary is in [governance](https://github.com/open-operational-state/governance/blob/main/GLOSSARY.md)) |
 | [design-notes/](design-notes/) | Design rationale and working notes |
 | [examples/](examples/) | Example payloads and scenarios |
+
+## Relationship to Existing Work
+
+Open Operational State builds on prior work in machine-readable service health and status, including:
+
+- **`draft-inadarei-api-health-check`** — Health Check Response Format for HTTP APIs
+- **`draft-dallariva-web-service-status-json`** — Service Status Resource Format for Web Services
+
+This project does not replace these efforts. Instead, it provides a unifying architecture that allows systems based on either approach to be interpreted through a common model. See [PRIOR-ART.md](PRIOR-ART.md) for detailed analysis.
 
 ## Related Repositories
 
