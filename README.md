@@ -43,8 +43,8 @@ Then explore the specification documents:
 
 Open Operational State builds on prior work in machine-readable service health and status, including:
 
-- **Health Check Response Format for HTTP APIs** (`draft-inadarei-api-health-check`) — a widely adopted format for HTTP API health checks
-- **Service Status Resource Format for Web Services** (`draft-dallariva-web-service-status-json`) — a proposal for richer, structured service status resources
+- **[Health Check Response Format for HTTP APIs](https://datatracker.ietf.org/doc/draft-inadarei-api-health-check/)** (`draft-inadarei-api-health-check`) — a widely adopted format for HTTP API health checks
+- **[Service Status Resource Format for Web Services](https://datatracker.ietf.org/doc/draft-dallariva-web-service-status-json/)** (`draft-dallariva-web-service-status-json`) — a proposal for richer, structured service status resources
 
 These approaches represent different models of expressing operational state. This project provides a unifying architecture that allows both to be interpreted through a common model. See [PRIOR-ART.md](PRIOR-ART.md) for detailed analysis.
 
