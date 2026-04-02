@@ -46,7 +46,7 @@ Open Operational State builds on prior work in machine-readable service health a
 - **[Health Check Response Format for HTTP APIs](https://datatracker.ietf.org/doc/draft-inadarei-api-health-check/)** (`draft-inadarei-api-health-check`) — a widely adopted format for HTTP API health checks
 - **[Service Status Resource Format for Web Services](https://datatracker.ietf.org/doc/draft-dallariva-web-service-status-json/)** (`draft-dallariva-web-service-status-json`) — a proposal for richer, structured service status resources
 
-These approaches represent different models of expressing operational state. This project provides a unifying architecture that allows both to be interpreted through a common model. See [PRIOR-ART.md](PRIOR-ART.md) for detailed analysis.
+These approaches represent different models of expressing operational state. Concepts from both are commonly seen in production systems, such as health endpoints exposed by frameworks like [Spring Boot Actuator](https://docs.spring.io/spring-boot/reference/actuator/endpoints.html) and [readiness/liveness probes in Kubernetes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/). This project provides a unifying architecture that allows these formats to be interpreted through a common model. See [PRIOR-ART.md](PRIOR-ART.md) for detailed analysis.
 
 ## Related Repositories
 
