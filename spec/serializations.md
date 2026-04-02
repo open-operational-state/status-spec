@@ -1,6 +1,10 @@
 # Serializations
 
-> **Status:** Conceptual definition — Phase 2 (not yet normative).
+> **Status:** Draft specification — Phase 3.
+
+## Notational Conventions
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119).
 
 ## Purpose
 
@@ -12,13 +16,13 @@ Serializations define wire-level representations of operational-state data, deco
 
 ---
 
-## What a Serialization Defines
+## Serialization Requirements
 
-Every serialization specification must include:
+Every serialization specification MUST include:
 
-1. **Content type** — the media type identifying this serialization (e.g., `application/health+json`)
+1. **Content type** — the media type identifying this serialization
 2. **Field mapping** — how each core model concept maps to wire-level fields, with exact field names and JSON structure
-3. **Required vs. optional fields** — which fields must be present and which may be omitted
+3. **Required vs. optional fields** — which fields MUST be present and which MAY be omitted
 4. **Core model coverage** — which core model concepts this serialization can represent
 5. **Declared limitations** — which core model concepts are **not** representable in this serialization, documented explicitly rather than silently dropped
 6. **Lossless mapping proof** — a demonstration that the serialization can round-trip through the core model within its declared coverage without information loss
@@ -27,104 +31,31 @@ Every serialization specification must include:
 
 Two architectural constraints govern all serializations:
 
-1. **Lossless within scope** — a serialization must be losslessly mappable to the core model within its declared capability. If a serialization cannot represent a core model concept, it must declare that limitation explicitly rather than silently dropping or distorting information.
+1. **Lossless within scope** — a serialization MUST be losslessly mappable to the core model within its declared capability. If a serialization cannot represent a core model concept, it MUST declare that limitation explicitly rather than silently dropping or distorting information.
 
-2. **No semantic invention** — a serialization must not introduce new semantics that cannot be represented in the core model. If a wire format needs a concept that doesn't exist in the core model, the core model should be extended first. This prevents divergence between implementations and hidden meaning in wire formats.
+2. **No semantic invention** — a serialization MUST NOT introduce new semantics that cannot be represented in the core model. If a wire format needs a concept that doesn't exist in the core model, the core model SHOULD be extended first. This prevents divergence between implementations and hidden meaning in wire formats.
 
----
+## Field Name Consistency
 
-## Dual-Lineage Strategy
+All serializations MUST use consistent field names for the same core model concepts:
 
-The v1 standard defines two primary serializations, each informed by a prior-art Internet-Draft lineage. This reflects the locked architectural decision that the two prior drafts cannot be collapsed into a single universal wire format without structural conflicts.
+- The condition concept MUST be expressed as `condition` (not `status`, `state`, or `health`)
+- The subject concept MUST be expressed as `subject` (not `service`, `resource`, or `target`)
+- Profile declarations MUST use the field name `profiles`
 
-### Health-Response Serialization
-
-**Lineage:** Informed by `draft-inadarei-api-health-check-06` (_Health Check Response Format for HTTP APIs_).
-
-**Content type direction:** `application/health+json` (or a namespace under the standard's authority).
-
-**Characteristics:**
-
-- Flat, single-resource-oriented structure
-- Component-level detail via a `checks` object keyed by component name
-- Status vocabulary: a small, binary-ish set (the prior draft uses `pass` / `fail` / `warn`)
-- Observation-oriented: includes per-check timing, values, and units
-- Links for related resources
-
-**Core model mapping (conceptual — exact field names are Phase 3):**
-
-| Core Model Concept | Mapping Direction |
-|---|---|
-| Subject | Represented by the resource itself (implicit) + service identifier |
-| Condition | Top-level status field + per-component status |
-| Timing | Per-component observation time |
-| Evidence | Per-component observed values and units |
-| Scope | Implicit: whole-service at top level, component-specific in checks |
-| Components | Checks object with component-keyed entries |
-| Dependencies | Within checks, components typed as external dependencies |
-| Provenance | Not directly represented — implied as self-reported |
-
-**Declared limitations:**
-
-- No explicit provenance field (assumes self-reported)
-- Limited scope expressiveness (no regional / zonal)
-- No dependency vs. component semantic distinction in the wire format
-
-### Service-Status Serialization
-
-**Lineage:** Informed by `draft-dallariva-web-service-status-json-00` (_Service Status Resource Format for Web Services_).
-
-**Content type direction:** `application/status+json` (or a namespace under the standard's authority).
-
-**Characteristics:**
-
-- Rich, multi-level structure
-- Component-level status with criticality classification
-- Geographic scope identification
-- Structured incident reporting
-- Richer metadata model
-
-**Core model mapping (conceptual — exact field names are Phase 3):**
-
-| Core Model Concept | Mapping Direction |
-|---|---|
-| Subject | Explicit service identification with metadata |
-| Condition | Overall health indicators + per-component status |
-| Timing | Report timestamps + per-component observation times |
-| Evidence | Incident details, component-level observations |
-| Scope | Geographic scope, regional identification |
-| Components | Component list with criticality classification |
-| Dependencies | Potentially within components or as a separate concept |
-| Provenance | Not directly represented as a first-class field |
-
-**Declared limitations:**
-
-- No explicit provenance field
-- More opinionated structure that may constrain certain use cases
+This ensures that consumers can rely on consistent naming across serializations, even when the overall document structure differs.
 
 ---
 
-## Minimal Serialization
+## v1 Serializations
 
-The core model supports the concept of operationally useful state communicated with **no body at all**.
+v1 defines three serializations:
 
-### HTTP-Status-Code-Only
-
-A minimal "serialization" may consist of:
-
-- HTTP response status code (e.g., 200 = operational, 503 = unavailable)
-- Optional HTTP headers conveying timing or profile information
-
-**Core model mapping:**
-
-| Core Model Concept | Mapping Direction |
-|---|---|
-| Subject | Implicit: the resource being requested |
-| Condition | Derived from HTTP status code |
-| Timing | HTTP `Date` header if present |
-| All other concepts | Not representable |
-
-**Declared limitations:** A minimal serialization conveys only a coarse-grained condition and cannot represent full operational state. It is the most lossy "serialization" — it can represent only Subject and Condition at a binary level. It is useful as an adapter target for existing HTTP health checks but should not be considered a conformant serialization for profiles beyond Liveness. Consumers must not treat a minimal serialization as equivalent to a richer one that happens to return the same condition.
+| Serialization | Content Type | Profile Coverage | Specification |
+|---|---|---|---|
+| **Health Response** | `application/health+json` | Liveness, Readiness, Health | [serializations/health-response.md](serializations/health-response.md) |
+| **Service Status** | `application/status+json` | All profiles (optimized for Status) | [serializations/service-status.md](serializations/service-status.md) |
+| **HTTP Status Only** | *(no body)* | Liveness only | [serializations/http-status-only.md](serializations/http-status-only.md) |
 
 ---
 
@@ -140,8 +71,8 @@ The core model is deliberately transport-agnostic to ensure this extension remai
 
 When a target supports multiple serializations, the consumer needs a way to select the appropriate one. This intersects with the Capabilities and Discovery layers:
 
-- **Separate resources** — different serializations served at different URLs (simplest, recommended as the primary approach for v1)
-- **Content negotiation** — HTTP `Accept` header to select serialization at a single URL (may be supported but should not be the sole mechanism)
+- **Separate resources** — different serializations served at different URLs (simplest, RECOMMENDED as the primary approach for v1)
+- **Content negotiation** — HTTP `Accept` header to select serialization at a single URL (MAY be supported but SHOULD NOT be the sole mechanism)
 
 ---
 

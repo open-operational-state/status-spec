@@ -106,5 +106,5 @@ A profile selects, constrains, and contextualizes core model concepts. It does n
 
 ## References
 
-- [core-model.md](../../spec/core-model.md) — where these invariants are applied
+- [core-model.md](../../spec/core-model.md) — normative specification where these invariants are encoded as MUST/MUST NOT requirements (Phase 3)
 - [ARCHITECTURE.md](../../ARCHITECTURE.md) — the six-layer model these invariants protect

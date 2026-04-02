@@ -1,6 +1,10 @@
 # Discovery
 
-> **Status:** Conceptual definition — Phase 2 (not yet normative).
+> **Status:** Draft specification — Phase 3.
+
+## Notational Conventions
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119).
 
 ## Purpose
 
@@ -8,7 +12,7 @@ Discovery defines how monitors locate available operational-state resources and 
 
 ## Key Principle
 
-**Monitors should not have to guess where operational-state resources live or what they represent.** Hard-coded path conventions are a useful baseline, but discovery must support richer, more reliable mechanisms.
+**Monitors SHOULD NOT have to guess where operational-state resources live or what they represent.** Hard-coded path conventions are a useful baseline, but discovery MUST support richer, more reliable mechanisms.
 
 ---
 
@@ -23,11 +27,11 @@ The standard defines a **priority hierarchy** for discovery mechanisms. More spe
 | **3** | Inline references | Resources linking to related resources |
 | **4 (optional)** | DNS bootstrap | Domain-level discovery for ecosystem-aware clients |
 
-This hierarchy means:
+Monitors MUST respect this hierarchy:
 
 - If link-based discovery provides resource locations, those are authoritative
-- If no explicit links are available, monitors may fall back to well-known paths
-- DNS is never required and never the sole discovery mechanism
+- If no explicit links are available, monitors MAY fall back to well-known paths
+- DNS MUST NOT be the sole discovery mechanism
 
 ---
 
@@ -39,45 +43,45 @@ HTTP Link headers and link relations that advertise operational-state resources 
 
 **How it works:**
 
-- A target includes `Link` headers (per [RFC 8288](https://www.rfc-editor.org/rfc/rfc8288)) in HTTP responses from its primary endpoints
-- Link relations identify the type and role of the operational-state resource
+- A target SHOULD include `Link` headers (per [RFC 8288](https://www.rfc-editor.org/rfc/rfc8288)) in HTTP responses from its primary endpoints
+- The link relation type `operational-state` identifies operational-state resources
 - Consumers parse Link headers to discover available resources
 
-**Advantages:**
+**Link relation type:** `operational-state`
 
-- Authoritative — the target explicitly declares its operational-state resources
-- Discoverable from any endpoint — no need to guess paths
-- Supports profile and serialization indication via link parameters
+**Format:**
 
-**Link relation strategy:**
+```http
+Link: <https://api.example.com/health>; rel="operational-state"
+```
 
-- Existing registered link relations should be used where applicable
-- New link relations may need to be registered for operational-state-specific roles
-- Exact link relation types are a Phase 3 deliverable
+With optional profile parameter:
+
+```http
+Link: <https://api.example.com/health>; rel="operational-state"; profile="health"
+Link: <https://api.example.com/status>; rel="operational-state"; profile="status"
+```
+
+**Requirements:**
+
+- Targets SHOULD include at least one `Link` header with `rel="operational-state"` in responses from primary API endpoints
+- The `profile` parameter is OPTIONAL — when present, it indicates which profile the linked resource implements
+- Multiple `Link` headers with `rel="operational-state"` MAY be present, pointing to different resources (e.g., different profiles, different serializations)
 
 ### 2. Well-Known Path (Baseline Fallback)
 
-A predictable URI path under `/.well-known/` (per [RFC 8615](https://www.rfc-editor.org/rfc/rfc8615)) that serves as a bootstrap discovery point.
+A predictable URI path serving as a bootstrap discovery point.
 
-**Role clarification:** the well-known path is a **discovery document**, not necessarily the health payload itself. It may:
+**Well-known path:** `/.well-known/operational-state`
 
-- Point to operational-state resources at other paths
-- Describe available profiles and serializations
-- Provide links to specific operational-state endpoints
+This path MUST serve a **discovery document** (see [Discovery Document Format](#discovery-document-format)), not necessarily the operational-state payload itself.
 
-The exact well-known path name is deferred to Phase 3.
+**Requirements:**
 
-**Advantages:**
-
-- No prior knowledge required — any client can attempt the well-known path
-- Simple to implement
-- Works as a starting point when no other discovery information is available
-
-**Constraints:**
-
-- The well-known path should not be the only discovery mechanism relied upon
-- Targets may serve the well-known path even if they also provide link-based discovery
-- The well-known resource should be safe to probe (no side effects, lightweight)
+- Targets SHOULD serve the well-known path if they expose any operational-state resources
+- The well-known resource MUST be safe to probe (no side effects, lightweight)
+- The well-known resource SHOULD be publicly accessible without authentication
+- The well-known resource MUST return `application/json` content type
 
 ### 3. Inline References
 
@@ -85,80 +89,135 @@ Operational-state resources linking to related resources within their own respon
 
 **How it works:**
 
-- A shallow endpoint (e.g., liveness) includes links to deeper endpoints (e.g., health, status)
+- A shallow endpoint (e.g., liveness) includes links to deeper endpoints (e.g., health, status) via the `links` field in the response body
 - Resources advertise related resources at different depth levels
 - Consumers can navigate from a simple entry point to richer operational-state information
 
-**Use cases:**
+**Requirements:**
 
-- Liveness endpoint linking to full health endpoint
-- Health endpoint linking to authenticated status endpoint
-- Component-level resources linking to parent service status
+- Inline references SHOULD use the `operational-state` link relation
+- The `links` object in serialization responses MAY include references to related operational-state resources
 
 ### 4. DNS Bootstrap (Optional)
 
-DNS TXT records for domain-level discovery of operational-state resources.
+DNS TXT records for domain-level discovery.
 
 **How it works:**
 
-- A domain publishes TXT records indicating the availability and location of operational-state resources
-- Ecosystem-aware clients check DNS before making HTTP requests
-- DNS provides a domain-ownership-verified entry point
+- A domain MAY publish a TXT record at `_operational-state.<domain>` indicating the location of the well-known discovery document
+- Ecosystem-aware clients MAY check DNS before making HTTP requests
 
-**Constraints (locked):**
+**Format:**
 
-- Discovery **must not depend solely on DNS**
-- Any resource discoverable via DNS must also be discoverable through HTTP-based mechanisms
+```
+_operational-state.example.com. IN TXT "v=oos1; url=https://api.example.com/.well-known/operational-state"
+```
+
+**Constraints (normative):**
+
+- Discovery MUST NOT depend solely on DNS
+- Any resource discoverable via DNS MUST also be discoverable through HTTP-based mechanisms
 - DNS is an optimization and an ownership signal, not a required dependency
-
-**Exact TXT record format is deferred to Phase 3.**
+- Exact TXT record format beyond the above example is informational in v1
 
 ---
 
-## What Discovery Communicates
+## Discovery Document Format
 
-Regardless of mechanism, discovery must be able to communicate:
+The well-known path and standalone discovery endpoints MUST serve a discovery document with the following JSON structure:
 
-- **Resource location** — where operational-state endpoints exist (URLs)
-- **Resource relations** — how endpoints relate to each other (shallow vs. rich, summary vs. detail)
-- **Profile awareness** — which profile(s) a resource implements
-- **Access requirements** — whether a resource is public or requires authentication
-- **Depth indication** — which resources offer richer vs. shallower information
-- **Serialization availability** — what wire formats are available at each resource
+```json
+{
+  "version": "1.0",
+  "subject": {
+    "id": "<subject-identity>",
+    "description": "<human-readable-description>"
+  },
+  "resources": [
+    {
+      "href": "<url>",
+      "profiles": ["<profile-id>", ...],
+      "serialization": "<content-type>",
+      "auth": "none" | "required",
+      "description": "<human-readable-description>"
+    }
+  ]
+}
+```
+
+### Discovery Document Fields
+
+#### `version` (REQUIRED)
+
+Discovery document format version. MUST be `"1.0"` for v1.
+
+#### `subject` (REQUIRED)
+
+Object identifying the service this discovery document describes.
+
+- `subject.id` (REQUIRED) — same identity used in operational-state responses
+- `subject.description` (OPTIONAL) — human-readable name
+
+#### `resources` (REQUIRED)
+
+Array of available operational-state resources.
+
+Each resource entry:
+
+- `href` (REQUIRED) — absolute URL of the operational-state endpoint
+- `profiles` (REQUIRED) — array of profile identifiers this resource implements
+- `serialization` (REQUIRED) — content type served by this resource
+- `auth` (RECOMMENDED) — `"none"` if publicly accessible, `"required"` if authentication is needed
+- `description` (OPTIONAL) — human-readable description of the resource
+
+### Discovery Document Example
+
+```json
+{
+  "version": "1.0",
+  "subject": {
+    "id": "payment-platform",
+    "description": "Payment Processing Platform"
+  },
+  "resources": [
+    {
+      "href": "https://api.example.com/health",
+      "profiles": ["liveness", "readiness", "health"],
+      "serialization": "application/health+json",
+      "auth": "none",
+      "description": "Public health endpoint"
+    },
+    {
+      "href": "https://api.example.com/status",
+      "profiles": ["status"],
+      "serialization": "application/status+json",
+      "auth": "required",
+      "description": "Authenticated full status endpoint"
+    }
+  ]
+}
+```
 
 ---
 
 ## Multi-Service / Multi-Tenant Discovery
 
-When a single origin hosts multiple services or tenants, discovery must accommodate:
+When a single origin hosts multiple services or tenants:
 
-- **Path-scoped discovery** — different services at different path prefixes may have different operational-state resources
-- **Host-based separation** — virtual hosts or subdomains may each have their own operational-state endpoints
-- **Aggregation points** — a single discovery document may enumerate multiple services
-
-The conceptual approach is that the discovery mechanism does not assume one-service-per-origin. Exact patterns for multi-service discovery are a Phase 3 deliverable.
+- **Path-scoped discovery** — different services at different path prefixes MAY have separate well-known paths (e.g., `/.well-known/operational-state` serves a discovery document enumerating all services)
+- **Host-based separation** — virtual hosts or subdomains SHOULD each have their own discovery document
+- **Aggregation** — a single discovery document MAY enumerate multiple services by including multiple subjects with separate resource entries
 
 ---
 
 ## Public / Private Discovery Split
 
-Discovery must support the distinction between public and authenticated operational-state resources:
+Discovery MUST support the distinction between public and authenticated operational-state resources:
 
-- **Public resources should exist where possible** — they lower adoption friction and enable basic interoperability
-- **Authenticated resources should extend, not replace, public ones** — deeper detail behind auth, not hidden basics
-- Discovery should indicate the existence of authenticated endpoints without exposing their content
-- A monitor should be able to discover that richer information is available behind authentication, then decide whether to authenticate
-
----
-
-## Boundary with Capabilities
-
-Discovery and Capabilities are complementary but distinct:
-
-- **Discovery identifies resources** — it answers "where can I find operational-state information?"
-- **Capabilities describes resources** — it answers "what does this resource support and how can I interact with it?"
-
-A discovery mechanism locates an endpoint; capabilities metadata describes what profiles, serializations, and auth modes that endpoint supports.
+- **Public resources SHOULD exist where possible** — they lower adoption friction and enable basic interoperability
+- **Authenticated resources SHOULD extend, not replace, public ones** — deeper detail behind auth, not hidden basics
+- Discovery documents SHOULD indicate the existence of authenticated endpoints (via the `auth` field) without exposing their content
+- A monitor SHOULD be able to discover that richer information is available behind authentication, then decide whether to authenticate
 
 ---
 
