@@ -19,9 +19,15 @@ Then explore the specification documents:
 | Document | Layer | Description |
 |---|---|---|
 | [spec/core-model.md](spec/core-model.md) | Core Model | Stable, transport-agnostic semantics |
-| [spec/profiles.md](spec/profiles.md) | Profiles | Domain-specific specializations |
-| [spec/serializations.md](spec/serializations.md) | Serializations | Wire-level representations |
-| [spec/adapters.md](spec/adapters.md) | Adapters | Bridges for existing formats |
+| [spec/condition-vocabularies.md](spec/condition-vocabularies.md) | Core Model | Condition values per profile with ecosystem mappings |
+| [spec/profiles.md](spec/profiles.md) | Profiles | Domain-specific specializations (Liveness, Readiness, Health, Status) |
+| [spec/serializations.md](spec/serializations.md) | Serializations | Wire-level representation overview |
+| [spec/serializations/health-response.md](spec/serializations/health-response.md) | Serializations | `application/health+json` format |
+| [spec/serializations/service-status.md](spec/serializations/service-status.md) | Serializations | `application/status+json` format |
+| [spec/serializations/http-status-only.md](spec/serializations/http-status-only.md) | Serializations | Minimal HTTP-only serialization |
+| [spec/adapters.md](spec/adapters.md) | Adapters | Adapter specification framework |
+| [spec/adapters/plain-http.md](spec/adapters/plain-http.md) | Adapters | Plain HTTP status code adapter |
+| [spec/adapters/health-check-draft.md](spec/adapters/health-check-draft.md) | Adapters | draft-inadarei health check adapter |
 | [spec/discovery.md](spec/discovery.md) | Discovery | Locating operational-state resources |
 | [spec/capabilities.md](spec/capabilities.md) | Capabilities | Negotiation and feature advertisement |
 
