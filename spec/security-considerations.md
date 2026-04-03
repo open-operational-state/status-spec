@@ -1,7 +1,11 @@
 # Security Considerations
 
-**Status**: Draft specification
-**Layer**: Cross-cutting (applies to all layers)
+> **Status:** Draft specification — Phase 3.
+> **Layer:** Cross-cutting (applies to all layers)
+
+## Notational Conventions
+
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119) and [RFC 8174](https://www.rfc-editor.org/rfc/rfc8174) when, and only when, they appear in all capitals.
 
 This document provides operational guidance for implementers on controlling the exposure of operational-state information. It operationalizes the security principles established in the architecture (see [ARCHITECTURE.md](../ARCHITECTURE.md)).
 
@@ -26,7 +30,7 @@ The following tiers describe how much operational detail an endpoint exposes. Th
 | Tier | What Is Exposed | Typical Audience |
 |---|---|---|
 | **None** | No operational-state endpoint exists | N/A |
-| **Condition-only** | Top-level condition (`operational`, `degraded`, `down`) | Public / unauthenticated |
+| **Condition-only** | Top-level condition per the profile vocabulary | Public / unauthenticated |
 | **Condition + minimal metadata** | Condition, optional coarse timing, optional coarse service identity | Public or lightly authenticated |
 | **Component-level** | Components, dependencies, per-component conditions | Authenticated monitors |
 | **Full diagnostic** | All fields including evidence, dependency names, internal topology | Trusted internal consumers |
@@ -100,16 +104,21 @@ Implementations SHOULD consider this pattern as a safe default. It is already su
 ```json
 {
     "version": "1.0",
+    "subject": {
+        "id": "my-service",
+        "description": "My Service"
+    },
     "resources": [
         {
-            "href": "/health",
-            "profile": "health",
+            "href": "https://api.example.com/health",
+            "profiles": ["health"],
             "serialization": "application/health+json",
+            "auth": "none",
             "description": "Public health — condition only"
         },
         {
-            "href": "/status",
-            "profile": "status",
+            "href": "https://api.example.com/status",
+            "profiles": ["status"],
             "serialization": "application/status+json",
             "auth": "required",
             "description": "Detailed status — authenticated"
