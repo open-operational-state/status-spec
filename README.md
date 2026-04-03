@@ -4,7 +4,7 @@ The technical specification for [Open Operational State](https://github.com/open
 
 ## Overview
 
-This repository defines how web services communicate their operational condition — health, readiness, liveness, status — in a machine-readable, interoperable way. It provides a unifying semantic model for health check endpoints, readiness and liveness probes, and service status APIs. The standard is built around a six-layer extensible architecture.
+Today, every framework and platform exposes operational state differently — Spring Boot, Kubernetes, custom health endpoints — with no shared model for what the values mean. This repository defines how web services communicate their operational condition — health, readiness, liveness, status — in a machine-readable, interoperable way. It provides a unifying semantic model for health check endpoints, readiness and liveness probes, and service status APIs, built around a six-layer extensible architecture.
 
 ## Reading Guide
 
