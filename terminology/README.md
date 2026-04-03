@@ -13,6 +13,10 @@ This directory provides:
 - **Disambiguation** — clarifying distinctions that matter in spec context
 - **Domain-specific nuance** — additional precision needed for normative text
 
-## Status
+## Documents
 
-This directory will be populated as the specification develops and terminology needs arise. It is intentionally empty during the scaffolding phase.
+| Document | Topic |
+|---|---|
+| [condition.md](condition.md) | Condition values, severity, and ecosystem semantics |
+| [provenance.md](provenance.md) | Data provenance model and source classification |
+| [subject-scope.md](subject-scope.md) | Subject identity and scope boundaries |

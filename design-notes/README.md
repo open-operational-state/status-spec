@@ -15,6 +15,14 @@ Design notes capture:
 
 Governance-level Architecture Decision Records (ADRs) live in [`governance/decisions/`](https://github.com/open-operational-state/governance/blob/main/decisions/). Design notes here are more technical and spec-focused.
 
-## Status
+## Documents
 
-This directory will be populated as specification work progresses.
+| Note | Topic |
+|---|---|
+| [001](001-dual-serialization-strategy.md) | Dual serialization strategy |
+| [002](002-profile-boundaries.md) | Profile boundaries |
+| [003](003-condition-vocabulary-design.md) | Condition vocabulary design |
+| [004](004-discovery-mechanism-hierarchy.md) | Discovery mechanism hierarchy |
+| [005](005-snapshot-vs-stream.md) | Snapshot vs. stream |
+| [006](006-core-model-invariants.md) | Core model invariants |
+| [007](007-condition-value-naming.md) | Condition value naming |
