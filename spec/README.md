@@ -20,6 +20,7 @@ These documents should be read in layer order, starting from the foundational co
 | [adapters/health-check-draft.md](adapters/health-check-draft.md) | 4. Adapters | Draft specification |
 | [discovery.md](discovery.md) | 5. Discovery | Draft specification |
 | [capabilities.md](capabilities.md) | 6. Capabilities / Negotiation | Draft specification |
+| [security-considerations.md](security-considerations.md) | Cross-cutting | Draft specification |
 
 ## Supporting Material
 

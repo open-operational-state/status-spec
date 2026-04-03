@@ -285,6 +285,8 @@ Authentication is a first-class concern across all layers:
 - Capabilities may describe available authentication modes
 - The standard should work with realistic auth approaches (API keys, tokens, mutual TLS) rather than assuming all resources are public
 
+For detailed guidance on controlling information exposure in operational-state endpoints — including exposure tiers, sensitive implementation detail, discovery leakage, and the recommended coarse-public / rich-authenticated deployment pattern — see [Security Considerations](spec/security-considerations.md).
+
 ### Evidence and Provenance
 
 Condition information may originate from different sources. The architecture preserves room to represent provenance:
