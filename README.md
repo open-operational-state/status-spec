@@ -30,6 +30,7 @@ Then explore the specification documents:
 | [spec/adapters/health-check-draft.md](spec/adapters/health-check-draft.md) | Adapters | draft-inadarei health check adapter |
 | [spec/discovery.md](spec/discovery.md) | Discovery | Locating operational-state resources |
 | [spec/capabilities.md](spec/capabilities.md) | Capabilities | Negotiation and feature advertisement |
+| [spec/security-considerations.md](spec/security-considerations.md) | Cross-cutting | Exposure guidance and security considerations |
 
 ## Supporting Material
 
