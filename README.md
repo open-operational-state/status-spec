@@ -55,7 +55,7 @@ These approaches represent different models of expressing operational state. Con
 |---|---|
 | [governance](https://github.com/open-operational-state/governance) | Charter, governance model, authoritative glossary |
 | [status-conformance](https://github.com/open-operational-state/status-conformance) | Conformance definitions and test taxonomy |
-| [status-tooling](https://github.com/open-operational-state/status-tooling) | Vendor-neutral reference tooling |
+| [status-tooling-js](https://github.com/open-operational-state/status-tooling-js) | Vendor-neutral reference tooling (JavaScript) |
 
 ## Project Rules
 
